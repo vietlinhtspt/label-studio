@@ -1,12 +1,14 @@
 import paho.mqtt.client as mqtt 
 import time
 import json
+import cv2
 
 HOST_URL = "broker.emqx.io"
 HOST_PORT = 1883
 KEEP_ALIVE = 60 
 TOPIC = "linhnv/gyro"
 
+IS_RECORD = False
 """
 KEEP_ALIVE : Maximum period in seconds between communications with the
         broker. If no other messages are being exchanged, this controls the
@@ -38,8 +40,11 @@ print(mqttc.connect(HOST_URL,HOST_PORT,KEEP_ALIVE))
 print(mqttc.subscribe(TOPIC, 0))
 
 while True:
-    data_set = {"createAt": time.time(), "x":1, "y":2, "z":3}
+    data_set = {"time": time.time(), "x":1, "y":2, "z":3}
     message = json.dumps(data_set)
     mqttc.publish(TOPIC,message)
+    if cv2.waitKey(33) == ord('a'):
+        break
     time.sleep(1) # wait
+    
 client.loop_stop() #stop the loop
