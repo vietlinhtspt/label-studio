@@ -1,4 +1,5 @@
 from pynput import mouse, keyboard
+import time 
 
 def on_press(key):
     print(f'{key} pressed')

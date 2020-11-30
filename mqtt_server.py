@@ -1,16 +1,23 @@
 import sys
 import paho.mqtt.client as mqtt
+import json
+import time 
 
 HOST_URL = "broker.emqx.io"
 HOST_PORT = 1883
 KEEP_ALIVE = 60
 TOPIC = "linhnv/gyro"
+SAVED_LOG_PATH = f"./data/logs/test_{time.time()}.txt"
 
 def on_connect(mqttc, obj, flags, rc):
     print("rc: "+str(rc))
 
 def on_message(mqttc, obj, msg):
-    print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+    print("on_message: ", msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+    # Opening TXT file 
+    f = open(SAVED_LOG_PATH, "a")
+    f.write(str(msg.payload) + "\n")
+    f.close()
 
 def on_publish(mqttc, obj, mid):
     print("mid: "+str(mid))

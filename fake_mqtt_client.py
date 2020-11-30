@@ -7,6 +7,7 @@ HOST_URL = "broker.emqx.io"
 HOST_PORT = 1883
 KEEP_ALIVE = 60 
 TOPIC = "linhnv/gyro"
+SAVED_LOGS_PATH = ""
 
 IS_RECORD = False
 """
