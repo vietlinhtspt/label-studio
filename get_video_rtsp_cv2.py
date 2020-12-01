@@ -6,20 +6,31 @@ def get_video_start_time(username, password, ip_address, port, channel, stream,
                         starting_year, starting_month, starting_day, 
                         starting_hour, starting_minute, starting_second, path_save_frame):
 
-    uri = f"rtsp://{username}:{password}@{ip_address}:{port}/Streaming/tracks/{channel}{stream}\
-        ?starttime={starting_year}{starting_month}{starting_day}\
-        T{starting_hour}{starting_minute}{starting_second}z"
-    # uri = "rtsp://admin:abcd1234@192.168.10.75:554/Streaming/tracks/101?starttime=20201111T111111z"
+    uri = f"rtsp://{username}:{password}@{ip_address}:{port}/Streaming/tracks/{channel}{stream}\?starttime={starting_year}{starting_month}{starting_day}\T{starting_hour}{starting_minute}{starting_second}z"
+    # uri = "rtsp://admin:abcd1234@192.168.10.75:554/Streaming/tracks/101\?starttime=20201130\T121111z"
     print(uri)
 
     #video path
     cap = cv2.VideoCapture(uri)
+    # Find OpenCV version
+    (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
+     
+    # With webcam get(CV_CAP_PROP_FPS) does not work.
+    # Let's see for ourselves.
+    if int(major_ver)  < 3 :
+        fps = cap.get(cv2.cv.CV_CAP_PROP_FPS)
+        print("Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {0}".format(fps))
+    else :
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
+        
     count = 0
     while(cap.isOpened()):
         ret, frame = cap.read()
         if not ret:
             break
         else:
+            frame = cv2.resize(frame, (960, 540), interpolation = cv2.INTER_AREA)
             cv2.imshow('frame', frame)
             #The received "frame" will be saved. Or you can manipulate "frame" as per your needs.
             name = "rec_frame"+str(count)+".jpg"

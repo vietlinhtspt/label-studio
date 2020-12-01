@@ -19,7 +19,10 @@ def run_bash(bash_command):
 def process_json_message(message_string):
     list_strings = str(message_string).split("'")
     
-    message_object = json.loads(list_strings[1])
+    if len(list_strings[0]) > 10:
+        message_object = json.loads(list_strings[0])
+    else:
+        message_object = json.loads(list_strings[1])
     # print(message_object['time'])
     return message_object
 
