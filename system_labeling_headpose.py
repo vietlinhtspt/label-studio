@@ -53,9 +53,9 @@ def on_message(mqttc, obj, msg):
     message_object = process_json_message(message_string=message_string)
     
     if is_recording.value:
-        print(f"{convert_timestamp(int(time.time()))}[INFO] Is labeling-------------------", end="\r")
+        print(f"{convert_timestamp(int(time.time()))} [INFO] Is labeling-------------------", end="\r")
     else:
-        print(f"{convert_timestamp(int(time.time()))}[INFO] NOT labeled-------------------", end="\r")
+        print(f"{convert_timestamp(int(time.time()))} [INFO] NOT labeled-------------------", end="\r")
 
     # Check time message created, if it in period then save.
     # print("Start: ", list_log_start)

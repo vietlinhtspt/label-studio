@@ -35,7 +35,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream,
                         path_save_frame, log_path):
     timestamp_frame_start = timestamp - 2
     starting_second = int(starting_second) - 2
-    uri = f"rtsp://{username}:{password}@{ip_address}:{port}/Streaming/tracks/{channel}{stream}\?starttime={starting_year}{starting_month}{starting_day}\T{int(starting_hour)-7}{starting_minute}{str(starting_second)}z"
+    uri = f"rtsp://{username}:{password}@{ip_address}:{port}/Streaming/tracks/{channel}{stream}?starttime={format(int(starting_year), '04d')}{format(int(starting_month), '02d')}{format(int(starting_day), '02d')}T{format(int(starting_hour) - 7, '02d')}{format(int(starting_minute), '02d')}{str(format(int(starting_second), '02d'))}z"
     # uri = "rtsp://admin:abcd1234@192.168.10.75:554/Streaming/tracks/101?starttime=20201111T111111z"
     print(uri)
 
@@ -72,7 +72,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream,
             timestamp_frame = timestamp_frame_start + (count_frame * (1/fps))
             print(f"{timestamp_frame} | {line_object[0]['time']}", end="\r") 
             
-            name = f"rec_frame_{starting_year}{starting_month}{starting_day}T{starting_hour}{starting_minute}{str(starting_second + count_frame * (1.0/fps))}_{timestamp_frame}.jpg"
+            name = f"rec_frame_{format(int(starting_year), '04d')}{format(int(starting_month), '02d')}{format(int(starting_day), '02d')}T{format(int(starting_hour), '02d')}{format(int(starting_minute), '02d')}{starting_second + count_frame * (1.0/fps)}_{timestamp_frame}.jpg"
             
             if abs(timestamp_frame - line_object[0]['time']) < (1.000 / (fps*2)):
                 cv2.imwrite(os.path.join(path_save_frame,name), frame)
