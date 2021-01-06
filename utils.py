@@ -17,14 +17,47 @@ def run_bash(bash_command):
     os.system(bash_command)
 
 def process_json_message(message_string):
-    list_strings = str(message_string).split("'")
-    
-    if len(list_strings[0]) > 10:
-        message_object = json.loads(list_strings[0])
+    # print(f"Gettting json message: {message_string}")
+    # '1608820149,-890,32,-7'
+    # print(str(message_string).split('\'')[0])
+    list_strings = str(message_string).split("'")[1]
+    # 1608820149,-890,32,-7
+    list_strings = str(list_strings).split(",")
+    if checkIsNumberics(list_strings):
+        # print(list_strings)
+        # print(int(list_strings[0]))
+        # print(float(list_strings[1]))
+        # print(float(list_strings[2]))
+        # print(float(list_strings[3]))
+        message_object = {"time": int(list_strings[0]), "yaw": float(list_strings[1]), "pitch": float(list_strings[2]), "roll": float(list_strings[3]), "error": False}
+        
+        # print(f"Message objects ", message_object)
+        return message_object
     else:
-        message_object = json.loads(list_strings[1])
-    # print(message_object['time'])
-    return message_object
+        return {"error": True, "message": message_string}
+
+def checkIsNumberics(lists):
+    isNumberic = True
+    # print(f"List number: {lists}")
+    for element in lists:
+        if not is_number(element):
+            isNumberic = False
+            print("\nNot number: ", element)
+            print("\n")
+            break
+    # print(lists)
+    print(isNumberic)
+    return isNumberic
+
+def is_number(n):
+    is_number = True
+    try:
+        num = float(n)
+        # check for "nan" floats
+        is_number = num == num   # or use `math.isnan(num)`
+    except ValueError:
+        is_number = False
+    return is_number
 
 def convert_timestamp(timestamp):
     dt_obj = datetime.fromtimestamp(timestamp) 
