@@ -104,7 +104,7 @@ def get_bbox_YOLO_format(label_path, width, height):
     return bboxs_output
 
 
-def visualize(dir_imgs, label_box_imgs, save_imgs_path=None, save_video_path=None):
+def visualize(dir_imgs, label_box_imgs, label_pose_imgs, save_imgs_path=None, save_video_path=None):
     """
     input:
         dir_imgs: path to dir imgs

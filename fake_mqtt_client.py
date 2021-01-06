@@ -6,10 +6,12 @@ import cv2
 HOST_URL = "broker.emqx.io"
 HOST_PORT = 1883
 KEEP_ALIVE = 60 
-TOPIC = "linhnv/gyro"
+TOPIC = "linhnv/thread01/gyro"
+TOPIC2 = "linhnv/thread02/gyro"
 SAVED_LOGS_PATH = ""
 
 IS_RECORD = False
+
 """
 KEEP_ALIVE : Maximum period in seconds between communications with the
         broker. If no other messages are being exchanged, this controls the
@@ -40,12 +42,27 @@ mqttc.on_subscribe = on_subscribe
 print(mqttc.connect(HOST_URL,HOST_PORT,KEEP_ALIVE))
 print(mqttc.subscribe(TOPIC, 0))
 
+mqttc2 = mqtt.Client()   
+mqttc2.on_message = on_message
+mqttc2.on_connect = on_connect
+mqttc2.on_publish = on_publish
+mqttc2.on_subscribe = on_subscribe
+print(mqttc2.connect(HOST_URL,HOST_PORT,KEEP_ALIVE))
+print(mqttc2.subscribe(TOPIC, 0))
+
+count = 0
+start = time.time()
 while True:
     data_set = {"time": time.time(), "x":1, "y":2, "z":3}
     message = json.dumps(data_set)
     mqttc.publish(TOPIC,message)
-    if cv2.waitKey(33) == ord('a'):
+    mqttc2.publish(TOPIC2,message)
+    if time.time() - start >= 10:
         break
-    time.sleep(1) # wait
+    count += 1
+    # if cv2.waitKey(33) == ord('a') or count == 1000:
+    #     break
+    # time.sleep(0.001) # wait
     
-client.loop_stop() #stop the loop
+mqttc.loop_stop() #stop the loop
+mqttc2.loop_stop() #stop the loop

@@ -29,6 +29,8 @@ def get_video_start_time(username, password, ip_address, port, channel, stream,
             count += 1
         if cv2.waitKey(20) & 0xFF == ord('q'):
          import os
+
+         
 def get_frame_from_log(username, password, ip_address, port, channel, stream, 
                         starting_year, starting_month, starting_day, 
                         starting_hour, starting_minute, starting_second, timestamp,
@@ -44,7 +46,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream,
     lines = [line.split("'")[1] for line in log_file.readlines()]
     line_object = [process_json_message(line) for line in lines]
     line_object.sort(key=lambda x: x['time'], reverse=False)
-    print(line_object)
+    print(f"Num got frame: {len(line_object)}")
 
     #video path
     cap = cv2.VideoCapture(uri)
@@ -70,11 +72,14 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream,
             # cv2.imshow('frame', frame)
             #The received "frame" will be saved. Or you can manipulate "frame" as per your needs.
             timestamp_frame = timestamp_frame_start + (count_frame * (1/fps))
-            print(f"{timestamp_frame} | {line_object[0]['time']}", end="\r") 
+            print(f"[INFO]-{timestamp_frame}-|-{line_object[0]['time']}-|-{len(line_object)}-----", end="\r") 
             
             name = f"rec_frame_{format(int(starting_year), '04d')}{format(int(starting_month), '02d')}{format(int(starting_day), '02d')}T{format(int(starting_hour), '02d')}{format(int(starting_minute), '02d')}{starting_second + count_frame * (1.0/fps)}_{timestamp_frame}.jpg"
-            
-            if abs(timestamp_frame - line_object[0]['time']) < (1.000 / (fps*2)):
+            # 1609900972.982348 | 
+            # 1609901392.553
+            # 1609913255.610
+            # 1609901673
+            if abs(timestamp_frame * 1000 - line_object[0]['time']) < (1000 / (fps)):
                 cv2.imwrite(os.path.join(path_save_frame,name), frame)
                 del line_object[0]
                 if len(line_object) == 0:

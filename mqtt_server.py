@@ -6,7 +6,7 @@ import time
 HOST_URL = "broker.emqx.io"
 HOST_PORT = 1883
 KEEP_ALIVE = 60
-TOPIC = "linhnv/gyro"
+TOPIC = "linhnv/gyro/sensor/01"
 SAVED_LOG_PATH = f"./data/logs/test_{time.time()}.txt"
 
 def on_connect(mqttc, obj, flags, rc):
