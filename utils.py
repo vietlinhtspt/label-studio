@@ -19,8 +19,11 @@ def run_bash(bash_command):
 def process_json_message(message_string):
     # print(f"Gettting json message: {message_string}")
     # '1608820149,-890,32,-7'
-    # print(str(message_string).split('\'')[0])
-    list_strings = str(message_string).split("'")[1]
+    # print(str(message_string).split("'"))
+
+    list_strings = str(message_string).split("'")[0]
+    if len(list_strings) == 0:
+        list_strings = str(message_string).split("'")[1]
     # 1608820149,-890,32,-7
     list_strings = str(list_strings).split(",")
     if checkIsNumberics(list_strings):
@@ -46,7 +49,7 @@ def checkIsNumberics(lists):
             print("\n")
             break
     # print(lists)
-    print(isNumberic)
+    # print(isNumberic)
     return isNumberic
 
 def is_number(n):
