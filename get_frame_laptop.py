@@ -4,7 +4,11 @@ import os
 from glob import glob
 
 def get_frame_from_log(path_save_frame, log_path, timestamp, video_path):
-    timestamp_frame_start = timestamp - 2
+    """
+    input:
+    output:
+    """
+    timestamp_frame_start = timestamp
     starting_second = timestamp
     
     # Using readlines() 
@@ -57,6 +61,10 @@ def get_frame_from_log(path_save_frame, log_path, timestamp, video_path):
     cv2.destroyAllWindows()
 
 def get_frame_from_all_log(path_save_frame, logs_dir, video_path):
+    """
+    input:
+    output:
+    """
     list_all_logs = glob(f"{logs_dir}/*")
     for log_path in list_all_logs:
         # print(os.path.basename(log_path))
@@ -68,7 +76,7 @@ def get_frame_from_all_log(path_save_frame, logs_dir, video_path):
         hour = list_info[3]
         minute = list_info[4]
         second = list_info[5].split(".")[0]
-        timestamp = 1609922455
+        timestamp = 1609922440
         
         get_frame_from_log(path_save_frame, log_path, timestamp, video_path)
 

@@ -7,6 +7,10 @@ from glob import glob
 def get_video_start_time(username, password, ip_address, port, channel, stream, 
                         starting_year, starting_month, starting_day, 
                         starting_hour, starting_minute, starting_second, path_save_frame):
+    """
+    input:
+    output:
+    """
 
     uri = f"rtsp://{username}:{password}@{ip_address}:{port}/Streaming/tracks/{channel}{stream}\
         ?starttime={starting_year}{starting_month}{starting_day}\
@@ -30,23 +34,38 @@ def get_video_start_time(username, password, ip_address, port, channel, stream,
         if cv2.waitKey(20) & 0xFF == ord('q'):
          import os
 
+def read_log_file(log_path):
+    """
+    input:
+        log_path: path to log file
+    output:
+        list objects: list all sorted pose objects in lines by time. [{'time': 123, 'yaw': 0, 'pitch': 0, 'row': 0}]
+    """
+    # Using readlines() 
+    log_file = open(log_path, 'r') 
+    lines = [line.split("'")[1] for line in log_file.readlines()]
+    line_objects = [process_json_message(line) for line in lines]
+    line_objects.sort(key=lambda x: x['time'], reverse=False)
+    print(f"[INFO] Num got frame: {len(line_objects)}")
+
+    return line_objects
          
 def get_frame_from_log(username, password, ip_address, port, channel, stream, 
                         starting_year, starting_month, starting_day, 
                         starting_hour, starting_minute, starting_second, timestamp,
                         path_save_frame, log_path):
+    """
+    input:
+    output:
+    """
     timestamp_frame_start = timestamp - 2
     starting_second = int(starting_second) - 2
     uri = f"rtsp://{username}:{password}@{ip_address}:{port}/Streaming/tracks/{channel}{stream}?starttime={format(int(starting_year), '04d')}{format(int(starting_month), '02d')}{format(int(starting_day), '02d')}T{format(int(starting_hour) - 7, '02d')}{format(int(starting_minute), '02d')}{str(format(int(starting_second), '02d'))}z"
     # uri = "rtsp://admin:abcd1234@192.168.10.75:554/Streaming/tracks/101?starttime=20201111T111111z"
     print(uri)
 
-    # Using readlines() 
-    log_file = open(log_path, 'r') 
-    lines = [line.split("'")[1] for line in log_file.readlines()]
-    line_object = [process_json_message(line) for line in lines]
-    line_object.sort(key=lambda x: x['time'], reverse=False)
-    print(f"Num got frame: {len(line_object)}")
+    # read all line and sort by time 
+    line_object = read_log_file(log_path)
 
     #video path
     cap = cv2.VideoCapture(uri)
@@ -92,6 +111,10 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream,
 
 def get_frame_from_all_log(username, password, ip_address, port, channel, stream, 
                         path_save_frame, logs_dir):
+    """
+    input:
+    output:
+    """
     list_all_logs = glob(f"{logs_dir}/*")
     for log_path in list_all_logs:
         # print(os.path.basename(log_path))
