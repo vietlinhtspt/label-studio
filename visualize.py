@@ -1,3 +1,4 @@
+import math
 import os
 import json
 from glob import glob
@@ -13,8 +14,16 @@ from get_frame import read_log_file
 def draw_axis(img, yaw, pitch, roll, tdx=None, tdy=None, size=80):
     """
     input:
+        img: cv2 image
+        yaw: euler (360) 
+        pitch: euler (360)
+        roll: euler (360)
+        tdx, tdy: tdx = width / 2, tdy = height / 2
     output:
     """
+    yaw_euler = yaw
+    pitch_euler = pitch
+    roll_euler = roll
     pitch = pitch * np.pi / 180
     yaw = -(yaw * np.pi / 180)
     roll = roll * np.pi / 180
@@ -45,6 +54,10 @@ def draw_axis(img, yaw, pitch, roll, tdx=None, tdy=None, size=80):
     cv2.line(img, (int(tdx), int(tdy)), (int(x1), int(y1)), (0, 0, 255), 3)
     cv2.line(img, (int(tdx), int(tdy)), (int(x2), int(y2)), (0, 255, 0), 3)
     cv2.line(img, (int(tdx), int(tdy)), (int(x3), int(y3)), (255, 0, 0), 2)
+
+    cv2.putText(img, "yaw"+str(yaw_euler), (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+    cv2.putText(img, "pitch"+str(pitch_euler), (int(x2), int(y2)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
+    cv2.putText(img, "roll"+str(roll_euler), (int(x3), int(y3)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA)
 
     return img
 
@@ -133,16 +146,18 @@ def visualize(camera_yaw, camera_pitch, camera_roll, dir_imgs, label_box_imgs, l
     """
 
     list_imgs = read_frames(dir_imgs)
-    list_poses = read_log_file(label_pose_imgs)
+    list_poses, head_pose_init = read_log_file(label_pose_imgs)
+
+    # head_pose_offset = [head_pose_init[0] - camera_yaw, head_pose_init[1] - camera_pitch, head_pose_init[2] - camera_roll]
     
     print("[INFO] Drawing ...")
-    for index, img_path in enumerate(tqdm.tqdm(list_imgs[:10])):
+    for index, img_path in enumerate(tqdm.tqdm(list_imgs[:])):
         # print(img_path)
         img = cv2.imread(img_path)
         head_poses = list_poses[index]
-        head_yaw = head_poses['yaw']
-        head_pitch = head_poses['pitch']
-        head_roll = head_poses['roll']
+        head_yaw =  head_pose_init[0] - head_poses['yaw']
+        head_pitch = head_pose_init[1] - head_poses['pitch']
+        head_roll = head_pose_init[2] - head_poses['roll']
         height, width, channels = img.shape
 
         # print(height, width)
@@ -151,9 +166,15 @@ def visualize(camera_yaw, camera_pitch, camera_roll, dir_imgs, label_box_imgs, l
         label_path = os.path.join(label_box_imgs, label_name)
         bboxs = get_bbox_YOLO_format(label_path, width, height)
         # print(bboxs)
-        drawed_img = draw_annotates(img, bboxs, pose=[head_yaw - camera_yaw, head_pitch-camera_pitch, head_roll-camera_roll])
+        drawed_img = draw_annotates(img, bboxs, pose=[head_yaw, head_pitch, head_roll])
         if save_imgs_path:
             cv2.imwrite(os.path.join(save_imgs_path, img_name), drawed_img)
+
+        # print(img_name)
+        # print(f"[INFO] Head sensor: [{head_poses['yaw']}, {head_poses['pitch']}, {head_poses['pitch']}]")
+        # print(f"[INFO] Head init: [{head_pose_init[0], head_pose_init[1], head_pose_init[2]}]")
+        # # print(f"[INFO] Camera sensor: [{camera_yaw}, {camera_pitch}, {camera_roll}]")
+        # print(f"[INFO] Img pose: [{head_yaw}, {head_pitch}, {head_roll}]")
         
         # print(label_path)
     # print(len(list_imgs))
@@ -182,7 +203,7 @@ def generate_video(imgs_path, saved_video_path):
     # the width, height of first image 
     height, width, layers = frame.shape   
   
-    video = cv2.VideoWriter(os.path.join(saved_video_path, "output.avi"), 0, 25, (width, height))  
+    video = cv2.VideoWriter(os.path.join(saved_video_path, "output.avi"), 0, 10, (width, height))  
   
     # Appending the images to the video one by one 
     for image in tqdm.tqdm(images):  
@@ -207,7 +228,7 @@ if __name__ == "__main__":
 
     yaw_camera = (23.81 + 22.69 + 25.13)/3
     pitch_camera = (53.06 + 54.50 + 53.89)/3
-    roll_camera = (0.06 + 1.69 - 0.63)/3 
+    roll_camera = (0.06 + 1.69 - 0.63)/3
     
     save_imgs_path = os.path.join(save_path, "imgs")
     save_video_path = os.path.join(save_path, "videos")

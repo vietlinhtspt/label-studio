@@ -48,7 +48,11 @@ def read_log_file(log_path):
     line_objects.sort(key=lambda x: x['time'], reverse=False)
     print(f"[INFO] Num got frame: {len(line_objects)}")
 
-    return line_objects
+    yaw_offset = 86.75
+    pitch_offset = 64.25
+    row_offset = -151.38
+
+    return line_objects, [yaw_offset, pitch_offset, row_offset]
          
 def get_frame_from_log(username, password, ip_address, port, channel, stream, 
                         starting_year, starting_month, starting_day, 
@@ -65,7 +69,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream,
     print(uri)
 
     # read all line and sort by time 
-    line_object = read_log_file(log_path)
+    line_object, _ = read_log_file(log_path)
 
     #video path
     cap = cv2.VideoCapture(uri)
