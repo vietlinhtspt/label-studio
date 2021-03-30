@@ -21,9 +21,11 @@ def draw_axis(img, yaw, pitch, roll, tdx=None, tdy=None, size=80):
         tdx, tdy: tdx = width / 2, tdy = height / 2
     output:
     """
-    yaw_euler = yaw
+    
+    yaw_euler = yaw 
     pitch_euler = pitch
     roll_euler = roll
+    yaw = yaw - 90
     pitch = pitch * np.pi / 180
     yaw = -(yaw * np.pi / 180)
     roll = roll * np.pi / 180
@@ -56,8 +58,8 @@ def draw_axis(img, yaw, pitch, roll, tdx=None, tdy=None, size=80):
     cv2.line(img, (int(tdx), int(tdy)), (int(x3), int(y3)), (255, 0, 0), 2)
 
     cv2.putText(img, "yaw"+str(yaw_euler), (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
-    cv2.putText(img, "pitch"+str(pitch_euler), (int(x2), int(y2)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
-    cv2.putText(img, "roll"+str(roll_euler), (int(x3), int(y3)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA)
+    cv2.putText(img, "roll"+str(roll_euler), (int(x2), int(y2)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
+    cv2.putText(img, "pitch"+str(pitch_euler), (int(x3), int(y3)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA)
 
     return img
 
@@ -84,7 +86,7 @@ def draw_annotates(img, bboxs, pose=[0, 0, 0]):
     input:
         image: RGB image
         bboxs: [[x1_min,y1_min, x2_max, y2_max]]
-        pose: [[yaw, pitch, roll]]
+        pose: [[yaw, roll, pitch]]
     output:
         draw bboxs and poses on image
     """
@@ -126,7 +128,8 @@ def read_frames(dir_imgs):
               if img.endswith(".jpg") or
                  img.endswith(".jpeg") or
                  img.endswith("png")] 
-    path_images = sorted(images, key=lambda x: float(os.path.basename(x).split("_")[2]), reverse=False)
+    # path_images = sorted(images, key=lambda x: float(os.path.basename(x).split("_")[2]), reverse=False)
+    path_images = sorted(images, key=lambda x: float(os.path.basename(x).split("_")[2].split("T")[1]), reverse=False)
     
     
     return path_images
@@ -155,9 +158,13 @@ def visualize(camera_yaw, camera_pitch, camera_roll, dir_imgs, label_box_imgs, l
         # print(img_path)
         img = cv2.imread(img_path)
         head_poses = list_poses[index]
-        head_yaw =  head_pose_init[0] - head_poses['yaw']
-        head_pitch = head_pose_init[1] - head_poses['pitch']
-        head_roll = head_pose_init[2] - head_poses['roll']
+        # head_yaw =  camera_yaw - 
+        # head_pitch = camera_pitch
+        # head_roll = camera_roll + head_poses['roll']
+        head_yaw = camera_yaw - head_poses['yaw']
+        head_pitch = camera_pitch - head_poses['pitch']
+        head_roll = camera_roll + head_poses['roll']
+        # print(camera_roll, head_poses['roll'])
         height, width, channels = img.shape
 
         # print(height, width)
@@ -165,8 +172,9 @@ def visualize(camera_yaw, camera_pitch, camera_roll, dir_imgs, label_box_imgs, l
         label_name = img_name.replace(".jpg", ".txt")
         label_path = os.path.join(label_box_imgs, label_name)
         bboxs = get_bbox_YOLO_format(label_path, width, height)
+        # bboxs = np.array([[0, 0, 128, 128]])
         # print(bboxs)
-        drawed_img = draw_annotates(img, bboxs, pose=[head_yaw, head_pitch, head_roll])
+        drawed_img = draw_annotates(img, bboxs, pose=[head_yaw, head_roll, head_pitch])
         if save_imgs_path:
             cv2.imwrite(os.path.join(save_imgs_path, img_name), drawed_img)
 
@@ -203,7 +211,7 @@ def generate_video(imgs_path, saved_video_path):
     # the width, height of first image 
     height, width, layers = frame.shape   
   
-    video = cv2.VideoWriter(os.path.join(saved_video_path, "output.avi"), 0, 10, (width, height))  
+    video = cv2.VideoWriter(os.path.join(saved_video_path, "output.avi"), 0, 5, (width, height))  
   
     # Appending the images to the video one by one 
     for image in tqdm.tqdm(images):  
@@ -217,18 +225,18 @@ def generate_video(imgs_path, saved_video_path):
 
 if __name__ == "__main__":
     dir_imgs = "/home/linhnv/projects/label-studio/imgs"
-    label_box_imgs = "/media/2tb/projects/VL's/label-studio/labels/Test_02_01"
-    label_pose_imgs = "data/logs/2021_01_06_15_40_00.933054_1609922400.9330544.txt"
+    label_box_imgs = "/home/linhnv/projects/label-studio/Thu_nghiem_thu_du_lieu_02"
+    label_pose_imgs = "/media/2tb/projects/VL's/label-studio/data/logs/2021_03_26_14_42_57.393322_1616744577.3933215.txt"
 
-    save_dir = "/media/2tb/projects/VL's/label-studio/processed"
+    save_dir = "/media/2tb/projects/VL's/headpose_data/Thu_nghiem_thu_du_lieu_02"
 
     # data_name = os.path.basename(dir_imgs)
-    data_name = "Test_02_01"
+    data_name = "Thu_nghiem_thu_du_lieu_02"
     save_path = os.path.join(save_dir, data_name)
 
-    yaw_camera = (23.81 + 22.69 + 25.13)/3
-    pitch_camera = (53.06 + 54.50 + 53.89)/3
-    roll_camera = (0.06 + 1.69 - 0.63)/3
+    yaw_camera = 180 + 62.488
+    pitch_camera = 8.1
+    roll_camera = 32.6
     
     save_imgs_path = os.path.join(save_path, "imgs")
     save_video_path = os.path.join(save_path, "videos")
