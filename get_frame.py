@@ -37,7 +37,7 @@ def get_video_start_time(username, password, ip_address, port, channel, stream,
         if cv2.waitKey(20) & 0xFF == ord('q'):
          import os
 
-def read_log_file(log_path):
+def read_log_file(log_path, padding=5):
     """
     input:
         log_path: path to log file
@@ -49,12 +49,14 @@ def read_log_file(log_path):
     lines = [line.split("'")[1] for line in log_file.readlines()]
     line_objects = [process_json_message(line) for line in lines]
     line_objects.sort(key=lambda x: x['time'], reverse=False)
-    print(f"[INFO] Num got frame: {len(line_objects)}")
+    print(f"[INFO] Num got frame in log: {len(line_objects)}")
 
     yaw_offset = 86.75
     pitch_offset = 64.25
     row_offset = -151.38
-
+    print(f"[INFO] Get frame width padding: {padding}")
+    line_objects = line_objects[::padding]
+    print(f"[INFO] Num got frame: {len(line_objects)}")
     return line_objects, [yaw_offset, pitch_offset, row_offset]
          
 def get_frame_from_log(username, password, ip_address, port, channel, stream, timestamp,
@@ -65,7 +67,6 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream, ti
     """
     # read all line and sort by time
     line_object, _ = read_log_file(log_path)
-    line_object = line_object[::5]
     timestamp_frame_start = line_object[0]['time']
     
     datetime_objects = convert_timestamp(int((timestamp_frame_start)/1000)).split("_")
