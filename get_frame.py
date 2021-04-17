@@ -65,6 +65,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream, ti
     """
     # read all line and sort by time
     line_object, _ = read_log_file(log_path)
+    line_object = line_object[::5]
     timestamp_frame_start = line_object[0]['time']
     
     datetime_objects = convert_timestamp(int((timestamp_frame_start)/1000)).split("_")
@@ -94,12 +95,15 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream, ti
     count_frame = 0
 
     Path(path_save_frame).mkdir(parents=True, exist_ok=True)
-    
+    start_frame = 0
     while(cap.isOpened()):
         ret, frame = cap.read()
         if not ret:
             break
         else:
+            if start_frame < 30:
+                start_frame += 1
+                continue
             # cv2.imshow('frame', frame)
             #The received "frame" will be saved. Or you can manipulate "frame" as per your needs.
             timestamp_frame = timestamp_frame_start + (count_frame * (1000/fps))
@@ -129,7 +133,7 @@ def get_frame_from_all_log(username, password, ip_address, port, channel, stream
     output:
     """
     list_all_logs = glob(f"{logs_dir}/*")
-    for log_path in list_all_logs:
+    for log_path in list_all_logs[:1]:
         # print(os.path.basename(log_path))
         name_file = os.path.basename(log_path)
         list_info = name_file.split("_")

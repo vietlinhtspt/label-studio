@@ -105,6 +105,8 @@ def get_bbox_YOLO_format(label_path, width, height):
         bboxs in label file
     """
     bboxs_output = []
+    if not os.path.exists(label_path):
+        return bboxs_output
     with open(label_path) as f:
         lines = f.readlines()
         # "0 0.341095 0.475086 0.032063 0.063574\n"
@@ -154,7 +156,7 @@ def visualize(camera_yaw, camera_pitch, camera_roll, dir_imgs, label_box_imgs, l
     # head_pose_offset = [head_pose_init[0] - camera_yaw, head_pose_init[1] - camera_pitch, head_pose_init[2] - camera_roll]
     
     print("[INFO] Drawing ...")
-    for index, img_path in enumerate(tqdm.tqdm(list_imgs[:])):
+    for index, img_path in enumerate(tqdm.tqdm(list_imgs[6:])):
         # print(img_path)
         img = cv2.imread(img_path)
         head_poses = list_poses[index]
@@ -225,13 +227,13 @@ def generate_video(imgs_path, saved_video_path):
 
 if __name__ == "__main__":
     dir_imgs = "/home/linhnv/projects/label-studio/imgs"
-    label_box_imgs = "/home/linhnv/projects/label-studio/Thu_nghiem_thu_du_lieu_02"
-    label_pose_imgs = "/media/2tb/projects/VL's/label-studio/data/logs/2021_03_26_14_42_57.393322_1616744577.3933215.txt"
+    label_box_imgs = "/media/2tb/projects/VL's/UetHeadpose/Test_Cong_bboxs"
+    label_pose_imgs = "/home/linhnv/projects/label-studio/data/logs/2021_04_17_09_55_18.821561_1618628118.8215609.txt"
 
-    save_dir = "/media/2tb/projects/VL's/headpose_data/Thu_nghiem_thu_du_lieu_02"
+    save_dir = "/media/2tb/projects/VL's/headpose_data"
 
     # data_name = os.path.basename(dir_imgs)
-    data_name = "Thu_nghiem_thu_du_lieu_02"
+    data_name = "Test_Cong_01"
     save_path = os.path.join(save_dir, data_name)
 
     yaw_camera = 180 + 62.488
