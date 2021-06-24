@@ -6,7 +6,12 @@ from glob import glob
 def get_frame_from_log(path_save_frame, log_path, timestamp, video_path):
     """
     input:
+        path_save_frame: Path to save frames.
+        logs_dir: Path to log files.
+        timestamp: Timestamp start.
+        video_path: Video paths.
     output:
+        None
     """
     timestamp_frame_start = timestamp
     starting_second = timestamp
@@ -49,7 +54,7 @@ def get_frame_from_log(path_save_frame, log_path, timestamp, video_path):
             # 1609901392.553
             # 1609913255.610
             # 1609901673
-            if abs(timestamp_frame * 1000 - line_object[0]['time']) < (1000 / (fps)):
+            if abs(timestamp_frame * 1000 - line_object[0]['time']) < (1000 / (fps)) or count_frame == 0:
                 cv2.imwrite(os.path.join(path_save_frame,name), frame)
                 del line_object[0]
                 if len(line_object) == 0:
@@ -63,7 +68,11 @@ def get_frame_from_log(path_save_frame, log_path, timestamp, video_path):
 def get_frame_from_all_log(path_save_frame, logs_dir, video_path):
     """
     input:
+        path_save_frame: Path to save frames.
+        logs_dir: Path to log files.
+        video_path: Video paths.
     output:
+        None
     """
     list_all_logs = glob(f"{logs_dir}/*")
     for log_path in list_all_logs:
@@ -76,7 +85,7 @@ def get_frame_from_all_log(path_save_frame, logs_dir, video_path):
         hour = list_info[3]
         minute = list_info[4]
         second = list_info[5].split(".")[0]
-        timestamp = 1609922440
+        timestamp = 1612105169
         
         get_frame_from_log(path_save_frame, log_path, timestamp, video_path)
 
@@ -87,5 +96,5 @@ if __name__ == "__main__":
     # get_video_start_time(username, password, ip_address, port, channel, stream, year, month, day, hour, minute, second, path_save_frame)
     log_dir = "data/logs"
     frames_dir = "data/frames"
-    video_path = "2021-01-06 15-40-39.mkv"
+    video_path = "2021-01-31 21-59-11.mp4"
     get_frame_from_all_log(path_save_frame, log_dir, video_path)

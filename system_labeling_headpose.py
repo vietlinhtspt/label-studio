@@ -12,7 +12,7 @@ from utils import process_json_message, convert_timestamp, write_message_to_txt
 
 manager = multiprocessing.Manager()
 
-HOST_URL = "broker.emqx.io"
+HOST_URL = "192.168.15.10"
 HOST_PORT = 1883
 KEEP_ALIVE = 60
 TOPIC = "linhnv/gyro/sensor/01"

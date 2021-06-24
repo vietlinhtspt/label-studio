@@ -12,3 +12,4 @@ if __name__ == "__main__":
     while True:
         get_snapshot_from_ipcam("http://admin:abcd1234@192.168.10.75:80/ISAPI/Streaming/channels/1/picture", saving_dir="imgs", time=time.time())
         time.sleep(0.5)
+        break

@@ -12,7 +12,12 @@ def get_video_start_time(username, password, ip_address, port, channel, stream,
                         starting_hour, starting_minute, starting_second, path_save_frame):
     """
     input:
+        username, password: username and password to login to camera.
+        ip_address, port, channel, stream: Addition info to get from camera. This is specific for our camera.
+        starting_year, starting_month, starting_day, starting_hour, starting_minute, starting_second: Specific time for get frames.
+        path_save_frame: Path to save frames.
     output:
+        None.
     """
 
     uri = f"rtsp://{username}:{password}@{ip_address}:{port}/Streaming/tracks/{channel}{stream}\
@@ -37,10 +42,11 @@ def get_video_start_time(username, password, ip_address, port, channel, stream,
         if cv2.waitKey(20) & 0xFF == ord('q'):
          import os
 
-def read_log_file(log_path, padding=5):
+def read_log_file(log_path, padding=1):
     """
     input:
         log_path: path to log file
+        padding: That mean "We get lines each padding line in log file. Eg: padding=1: Get all line."
     output:
         list objects: list all sorted pose objects in lines by time. [{'time': 123, 'yaw': 0, 'pitch': 0, 'row': 0}]
     """
@@ -59,11 +65,16 @@ def read_log_file(log_path, padding=5):
     print(f"[INFO] Num got frame: {len(line_objects)}")
     return line_objects, [yaw_offset, pitch_offset, row_offset]
          
-def get_frame_from_log(username, password, ip_address, port, channel, stream, timestamp,
+def get_frame_from_log(username, password, ip_address, port, channel, stream,
                         path_save_frame, log_path):
     """
     input:
+        username, password: username and password to login to camera.
+        ip_address, port, channel, stream: Addition info to get from camera. This is specific for our camera.
+        path_save_frame: Path to save all got frames, number frame coressponding log files.
+        log_path: Path to log files.
     output:
+        None
     """
     # read all line and sort by time
     line_object, _ = read_log_file(log_path)
@@ -94,6 +105,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream, ti
         fps = cap.get(cv2.CAP_PROP_FPS)
         print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
     count_frame = 0
+    count_saved_frame = 1
 
     Path(path_save_frame).mkdir(parents=True, exist_ok=True)
     start_frame = 0
@@ -111,6 +123,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream, ti
             print(f"[INFO]-{timestamp_frame}-|-{line_object[0]['time']}-|-{len(line_object)}-----", end="\r") 
             
             name = f"rec_frame_{format(int(starting_year), '04d')}{format(int(starting_month), '02d')}{format(int(starting_day), '02d')}T{format(int(starting_hour), '02d')}{format(int(starting_minute), '02d')}{starting_second + count_frame * (1.0/fps)}_{timestamp_frame}.jpg"
+            name = f"{count_saved_frame:04d}.jpg"
             # 1609900972.982348 | 
             # 1609901392.553
             # 1609913255.610
@@ -118,6 +131,7 @@ def get_frame_from_log(username, password, ip_address, port, channel, stream, ti
             # print(timestamp_frame, "-", line_object[0]['time'])
             if abs(timestamp_frame - line_object[0]['time']) < (1000 / (fps)):
                 cv2.imwrite(os.path.join(path_save_frame,name), frame)
+                count_saved_frame += 1
                 del line_object[0]
                 if len(line_object) == 0:
                     break
@@ -131,22 +145,28 @@ def get_frame_from_all_log(username, password, ip_address, port, channel, stream
                         path_save_frame, logs_dir):
     """
     input:
+        username, password: username and password to login to camera.
+        ip_address, port, channel, stream: Addition info to get from camera. This is specific for our camera.
+        path_save_frame: Path to save all got frames, number frame coressponding log files.
+        logs_dir: Path to dir that saved all log files.
     output:
+        None
     """
-    list_all_logs = glob(f"{logs_dir}/*")
-    for log_path in list_all_logs[:1]:
-        # print(os.path.basename(log_path))
-        name_file = os.path.basename(log_path)
-        list_info = name_file.split("_")
-        year = list_info[0]
-        month = list_info[1]
-        day = list_info[2]
-        hour = list_info[3]
-        minute = list_info[4]
-        second = list_info[5].split(".")[0]
-        timestamp = float(list_info[6][:-4])
+    # list_all_logs = glob(f"{logs_dir}/*")
+    list_all_logs = ["/home/linhnv/projects/label-studio/data/logs/2021_04_27_16_29_32.968940_1619515772.9689405.txt"]
+    for log_path in list_all_logs[:]:
+        print(os.path.basename(log_path))
+        # name_file = os.path.basename(log_path)
+        # list_info = name_file.split("_")
+        # year = list_info[0]
+        # month = list_info[1]
+        # day = list_info[2]
+        # hour = list_info[3]
+        # minute = list_info[4]
+        # second = list_info[5].split(".")[0]
+        # timestamp = float(list_info[6][:-4])
         
-        get_frame_from_log(username, password, ip_address, port, channel, stream, timestamp,
+        get_frame_from_log(username, password, ip_address, port, channel, stream,
                             path_save_frame, log_path)
 
 if __name__ == "__main__":

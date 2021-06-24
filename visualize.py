@@ -131,8 +131,10 @@ def read_frames(dir_imgs):
                  img.endswith(".jpeg") or
                  img.endswith("png")] 
     # path_images = sorted(images, key=lambda x: float(os.path.basename(x).split("_")[2]), reverse=False)
-    path_images = sorted(images, key=lambda x: float(os.path.basename(x).split("_")[2].split("T")[1]), reverse=False)
-    
+    # # old format
+    # path_images = sorted(images, key=lambda x: float(os.path.basename(x).split("_")[2].split("T")[1]), reverse=False)
+    # new_format
+    path_images = sorted(images, key=lambda x: float(os.path.basename(x).split(".")[0]), reverse=False)
     
     return path_images
 
@@ -156,9 +158,11 @@ def visualize(camera_yaw, camera_pitch, camera_roll, dir_imgs, label_box_imgs, l
     # head_pose_offset = [head_pose_init[0] - camera_yaw, head_pose_init[1] - camera_pitch, head_pose_init[2] - camera_roll]
     
     print("[INFO] Drawing ...")
-    for index, img_path in enumerate(tqdm.tqdm(list_imgs[6:])):
+    for index, img_path in enumerate(tqdm.tqdm(list_imgs[9:])):
         # print(img_path)
         img = cv2.imread(img_path)
+        if index >= len(list_poses):
+            break
         head_poses = list_poses[index]
         # head_yaw =  camera_yaw - 
         # head_pitch = camera_pitch
@@ -199,6 +203,7 @@ def generate_video(imgs_path, saved_video_path):
         imgs_path: Path to dir saved all drawed imgs
         saved_video_path: Saving video path
     output:
+        None
     """
     print(f"[INFO] Wrting video.")
     # print(imgs_path)
@@ -226,14 +231,14 @@ def generate_video(imgs_path, saved_video_path):
     
 
 if __name__ == "__main__":
-    dir_imgs = "/home/linhnv/projects/label-studio/imgs"
-    label_box_imgs = "/media/2tb/projects/VL's/UetHeadpose/Test_Cong_bboxs"
-    label_pose_imgs = "/home/linhnv/projects/label-studio/data/logs/2021_04_17_09_55_18.821561_1618628118.8215609.txt"
+    dir_imgs = "/home/linhnv/projects/label-studio/09"
+    label_box_imgs = "/media/2tb/projects/VL's/UetHeadpose/09_labels"
+    label_pose_imgs = "/home/linhnv/projects/label-studio/data/processed_log/09.txt"
 
-    save_dir = "/media/2tb/projects/VL's/headpose_data"
+    save_dir = "/home/linhnv/projects"
 
     # data_name = os.path.basename(dir_imgs)
-    data_name = "Test_Cong_01"
+    data_name = "09"
     save_path = os.path.join(save_dir, data_name)
 
     yaw_camera = 180 + 62.488

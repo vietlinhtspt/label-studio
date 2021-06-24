@@ -1,1 +1,1 @@
-sudo mosquitto -c mosquitto.conf -v
+sudo mosquitto -c config_mosquitto.conf -v
